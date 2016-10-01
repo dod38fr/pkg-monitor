@@ -1,4 +1,4 @@
-package MyApp::Controller::Example;
+package PkgMonit::Controller::Main;
 use Mojo::Base 'Mojolicious::Controller';
 use IO::Async::Loop::Mojo;
 use IO::Async::FileStream;

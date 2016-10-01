@@ -1,4 +1,4 @@
-package MyApp;
+package PkgMonit;
 use Mojo::Base 'Mojolicious';
 
 # This method will run once at server start
@@ -16,9 +16,9 @@ sub startup {
     my $r = $self->routes;
 
     # Normal route to controller
-    $r->get('/')->to('example#welcome');
+    $r->get('/')->to('main#welcome');
 
-    $r->websocket('/pkg')->to('example#open_socket');
+    $r->websocket('/pkg')->to('main#open_socket');
 }
 
 1;
