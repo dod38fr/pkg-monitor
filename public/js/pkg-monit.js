@@ -14,11 +14,11 @@ $(document).ready(function() {
 
     socket.onclose = function() {
        console.debug("closed ");
-       $('#pkgline').html("closed socket");
+       $('#status').html("closed socket, please reload page to reconnect");
     };
 
     socket.onopen = function() {
         console.debug("connected");
-        $('#pkgline').html('...');
+        $('#pkgline').html('[waiting for data]');
     };
 });
