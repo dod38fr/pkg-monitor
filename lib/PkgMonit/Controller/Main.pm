@@ -45,6 +45,10 @@ sub welcome {
 
             return 0;
         },
+
+        on_truncated => sub {
+            $self->app->log->debug( "file truncated");
+        }
     );
 
     # also keep $loop alive in closure 
