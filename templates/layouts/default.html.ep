@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
     <!-- See http://getbootstrap.com/getting-started/ -->
     <!-- Latest compiled and minified CSS -->
@@ -14,6 +18,9 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>    <title><%= title %></title>
     <script src="js/pkg-monit.js"></script>
+    <!-- Custom styles for this template -->
+    <link href="css/pkg-monit.css" rel="stylesheet">
+
     <title><%= title %></title>
   </head>
   <body><%= content %></body>
