@@ -32,15 +32,23 @@ sub welcome {
         on_read => sub {
             my ( $steam, $buffref ) = @_;
 
-            while( $$buffref =~ s/^(.*\n)// ) {
-                my $info = $1 ; # TODO: filter ?
-                if (%livesockets) {
-                    $self->app->log->debug( "sending line to " . scalar (keys %livesockets) . " websocket: $info");
+            while( $$buffref =~ s/^(.*)\n// ) {
+                my $info = $1 ;
+                my ($date,$hour,$data) = split /\s/,$info,3;
+                my $ws_count = keys %livesockets;
+
+                if ($ws_count and $data =~ /^(install|upgrade|remove)\s/) {
+                    $self->app->log->debug( "sending line to $ws_count websocket: $data");
                     foreach my $ws (values %livesockets) {
-                        $ws->send($info)  ;
+                        $ws->send($data)  ;
                     }
                 }
-                $self->app->log->debug( "websocket not opened, dropped line with: $1");
+                elsif ($ws_count) {
+                    $self->app->log->debug( "dropped: ->$data<-");
+                }
+                else {
+                    $self->app->log->debug( "No open websocket, dropped: $info");
+                }
             }
 
             return 0;
