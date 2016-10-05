@@ -7,8 +7,10 @@ $(document).ready(function() {
 
     let connect = function () {
         let socket ;
-        console.debug("opening websocket");
-        socket = new WebSocket("ws://127.0.0.1:3000/pkg");
+        let ws_url = document.baseURI.replace(/^http/,"ws") + 'pkg';
+        console.debug("opening websocket to "+ ws_url);
+
+        socket = new WebSocket(ws_url);
         $("#reconnect").hide();
 
         socket.onmessage =  function(event) {
