@@ -1,0 +1,11 @@
+[Unit]
+Description=Package Monitor
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/vagrant/pkg-monit/script/pkg-monit daemon -m production -l http://*:8080
+
+[Install]
+WantedBy=multi-user.target
+

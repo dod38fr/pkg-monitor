@@ -1,0 +1,7 @@
+# this file must be loaded after /etc/logrotate.d/dpkg, do not rename it.
+
+/var/log/dpkg.log {
+    postrotate
+        systemctl restart pkg-monit
+    endscript
+}
