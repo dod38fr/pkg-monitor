@@ -10,8 +10,7 @@ sub welcome {
 
     my $loop = IO::Async::Loop::Mojo->new();
 
-    #$loop->add( ... );
-    open my $logh, "<", "dpkg.log" or
+    open my $logh, "<", "/var/log/dpkg.log" or
         die "Cannot open logfile - $!";
 
     my %livesockets;
