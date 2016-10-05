@@ -86,7 +86,7 @@ sub open_socket {
     $self->app->log->debug('WebSocket opened');
 
     # Increase inactivity timeout for connection a bit
-    $self->inactivity_timeout(1200);# 20 mns
+    $self->inactivity_timeout(1200); # 20 mns
 
     my $idx = $self->app->record_ws($self);
 
