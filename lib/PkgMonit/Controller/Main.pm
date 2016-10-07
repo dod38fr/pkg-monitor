@@ -3,46 +3,57 @@ use Mojo::Base 'Mojolicious::Controller';
 use IO::Async::Loop::Mojo;
 use IO::Async::FileStream;
 
+my $loop = IO::Async::Loop::Mojo->new();
+my $filestream;
+
+{
+    my %livesockets;
+    my $socket_idx = 'ws001';
+
+    sub record_ws {
+        my ($self) = @_;
+        $self->app->log->debug( "websocket $socket_idx recorded $self");
+        $livesockets{$socket_idx} = $self ;
+        return $socket_idx++;
+    }
+
+    sub remove_ws {
+        my ($self,$i) = @_;
+        $self->app->log->debug( "websocket $i deleted");
+        delete $livesockets{$i} ;
+    }
+
+    sub count_ws {
+        return scalar keys %livesockets;
+    }
+
+    sub all_ws {
+        return values %livesockets;
+    }
+}
 
 # This action will render a template
 sub welcome {
     my $self = shift;
 
-    my $loop = IO::Async::Loop::Mojo->new();
-
-    my %livesockets;
-    my $socket_idx = 'ws001';
-
-    my $filestream = $self->setup_filestream(\%livesockets);
-
-    # also keep $loop alive in closure 
-    $self->app->helper( stream_loop => sub { return $loop });
-
-    $loop->add( $filestream );
-    $self->app->helper( record_ws => sub {
-        my ($self,$ws) = @_;
-        $self->app->log->debug( "websocket $socket_idx recorded $ws");
-        $livesockets{$socket_idx} = $ws ;
-        return $socket_idx++;
-    });
-    $self->app->helper( remove_ws => sub {
-        my ($self,$i) = @_;
-        $self->app->log->debug( "websocket $i deleted");
-        delete $livesockets{$i} ;
-    });
+    $self->app->log->debug("Serving main page");
 
     # Render template "example/welcome.html.ep" with message
     $self->render(msg => 'Welcome to the Mojolicious real-time web framework!');
 }
 
 sub setup_filestream {
-    my ($self, $livesockets ) = @_;
-    open my $logh, "<", "/var/log/dpkg.log" or
-        die "Cannot open logfile - $!";
+    my ($self ) = @_;
+
+    my $file = "/var/log/dpkg.log";
+    open my $logh, "<", $file or
+        die "Cannot open $file - $!";
+
+    $self->app->log->debug( "Setting up $file filestream");
 
     # need to have only one filestream for all websocket that may be
     # opened at the same time
-    my $filestream = IO::Async::FileStream->new(
+    my $stream = IO::Async::FileStream->new(
         read_handle => $logh,
         interval => 0.1,
 
@@ -58,13 +69,13 @@ sub setup_filestream {
             while( $$buffref =~ s/^(.*)\n// ) {
                 my $info = $1 ;
                 my ($date,$hour,$action,@data) = split /\s/,$info;
-                my $ws_count = keys %$livesockets;
+                my $ws_count = count_ws();
 
                 if ($ws_count and $action =~ /^(install|remove)$/) {
                     my ($pkg,$arch) = split /:/,$data[0];
                     my $msg = "$action $pkg";
                     $self->app->log->debug( "sending line to $ws_count websocket: $msg");
-                    foreach my $ws (values %$livesockets) {
+                    foreach my $ws ( all_ws() ) {
                         $ws->send($msg)  ;
                     }
                 }
@@ -83,7 +94,9 @@ sub setup_filestream {
             $self->app->log->debug( "file truncated");
         }
     );
-    return $filestream;
+
+    $loop->add( $stream );
+    return $stream;
 }
 
 sub open_socket {
@@ -92,16 +105,23 @@ sub open_socket {
     # Opened
     $self->app->log->debug('WebSocket opened');
 
+    $filestream //= $self->setup_filestream();
+
     # Increase inactivity timeout for connection a bit
     $self->inactivity_timeout(1200); # 20 mns
 
-    my $idx = $self->app->record_ws($self);
+    my $idx = $self->record_ws();
 
     # Closed
     $self->on(finish => sub {
         my ($c, $code, $reason) = @_;
         $c->app->log->debug("WebSocket closed with status $code");
-        $self->app->remove_ws($idx);
+        $self->remove_ws($idx);
+        if (count_ws() == 0) {
+            $c->app->log->debug("No more open websocket, closing file stream");
+            $loop->remove($filestream);
+            $filestream = undef;
+        }
     });
 };
 1;
