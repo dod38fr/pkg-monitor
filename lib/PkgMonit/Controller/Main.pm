@@ -33,17 +33,19 @@ sub welcome {
 
             while( $$buffref =~ s/^(.*)\n// ) {
                 my $info = $1 ;
-                my ($date,$hour,$data) = split /\s/,$info,3;
+                my ($date,$hour,$action,@data) = split /\s/,$info;
                 my $ws_count = keys %livesockets;
 
-                if ($ws_count and $data =~ /^(install|upgrade|remove)\s/) {
-                    $self->app->log->debug( "sending line to $ws_count websocket: $data");
+                if ($ws_count and $action =~ /^(install|remove)$/) {
+                    my ($pkg,$arch) = split /:/,$data[0];
+                    my $msg = "$action $pkg";
+                    $self->app->log->debug( "sending line to $ws_count websocket: $msg");
                     foreach my $ws (values %livesockets) {
-                        $ws->send($data)  ;
+                        $ws->send($msg)  ;
                     }
                 }
                 elsif ($ws_count) {
-                    $self->app->log->debug( "dropped: ->$data<-");
+                    $self->app->log->debug( "dropped: $info");
                 }
                 else {
                     $self->app->log->debug( "No open websocket, dropped: $info");
