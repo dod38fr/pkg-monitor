@@ -10,55 +10,10 @@ sub welcome {
 
     my $loop = IO::Async::Loop::Mojo->new();
 
-    open my $logh, "<", "/var/log/dpkg.log" or
-        die "Cannot open logfile - $!";
-
     my %livesockets;
     my $socket_idx = 'ws001';
 
-    # need to have only one filestream for all websocket that may be
-    # opened at the same time
-    my $filestream = IO::Async::FileStream->new(
-        read_handle => $logh,
-        interval => 0.1,
-
-        on_initial => sub {
-            my ( $steam ) = @_;
-            $steam->seek_to_last( "\n" );
-        },
-
-        # empty the stream while nobody listen
-        on_read => sub {
-            my ( $steam, $buffref ) = @_;
-
-            while( $$buffref =~ s/^(.*)\n// ) {
-                my $info = $1 ;
-                my ($date,$hour,$action,@data) = split /\s/,$info;
-                my $ws_count = keys %livesockets;
-
-                if ($ws_count and $action =~ /^(install|remove)$/) {
-                    my ($pkg,$arch) = split /:/,$data[0];
-                    my $msg = "$action $pkg";
-                    $self->app->log->debug( "sending line to $ws_count websocket: $msg");
-                    foreach my $ws (values %livesockets) {
-                        $ws->send($msg)  ;
-                    }
-                }
-                elsif ($ws_count) {
-                    $self->app->log->debug( "dropped: $info");
-                }
-                else {
-                    $self->app->log->debug( "No open websocket, dropped: $info");
-                }
-            }
-
-            return 0;
-        },
-
-        on_truncated => sub {
-            $self->app->log->debug( "file truncated");
-        }
-    );
+    my $filestream = $self->setup_filestream(\%livesockets);
 
     # also keep $loop alive in closure 
     $self->app->helper( stream_loop => sub { return $loop });
@@ -78,6 +33,57 @@ sub welcome {
 
     # Render template "example/welcome.html.ep" with message
     $self->render(msg => 'Welcome to the Mojolicious real-time web framework!');
+}
+
+sub setup_filestream {
+    my ($self, $livesockets ) = @_;
+    open my $logh, "<", "/var/log/dpkg.log" or
+        die "Cannot open logfile - $!";
+
+    # need to have only one filestream for all websocket that may be
+    # opened at the same time
+    my $filestream = IO::Async::FileStream->new(
+        read_handle => $logh,
+        interval => 0.1,
+
+        on_initial => sub {
+            my ( $steam ) = @_;
+            $steam->seek_to_last( "\n" );
+        },
+
+        # empty the stream while nobody listen
+        on_read => sub {
+            my ( $steam, $buffref ) = @_;
+
+            while( $$buffref =~ s/^(.*)\n// ) {
+                my $info = $1 ;
+                my ($date,$hour,$action,@data) = split /\s/,$info;
+                my $ws_count = keys %$livesockets;
+
+                if ($ws_count and $action =~ /^(install|remove)$/) {
+                    my ($pkg,$arch) = split /:/,$data[0];
+                    my $msg = "$action $pkg";
+                    $self->app->log->debug( "sending line to $ws_count websocket: $msg");
+                    foreach my $ws (values %$livesockets) {
+                        $ws->send($msg)  ;
+                    }
+                }
+                elsif ($ws_count) {
+                    $self->app->log->debug( "dropped: $info");
+                }
+                else {
+                    $self->app->log->debug( "No open websocket, dropped: $info");
+                }
+            }
+
+            return 0;
+        },
+
+        on_truncated => sub {
+            $self->app->log->debug( "file truncated");
+        }
+    );
+    return $filestream;
 }
 
 sub open_socket {
