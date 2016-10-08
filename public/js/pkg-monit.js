@@ -1,4 +1,5 @@
 /*global $, WebSocket */
+"use strict";
 
 $(document).ready(function() {
     // see https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
