@@ -2,19 +2,19 @@
 
 $(document).ready(function() {
     // see https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
-    let buffer = [];
-    let pkg_list_size = 15;
+    var buffer = [];
+    var pkg_list_size = 15;
 
-    let connect = function () {
-        let socket ;
-        let ws_url = document.baseURI.replace(/^http/,"ws") + 'pkg';
+    var connect = function () {
+        var socket ;
+        var ws_url = document.baseURI.replace(/^http/,"ws") + 'pkg';
         console.debug("opening websocket to "+ ws_url);
 
         socket = new WebSocket(ws_url);
         $("#reconnect").hide();
 
         socket.onmessage =  function(event) {
-            let data = event.data;
+            var data = event.data;
             if (typeof data == 'undefined' || data === null) {
                 return;
             }
