@@ -8,8 +8,8 @@
 Once the vagrant image is installed and running, open the page http://127.0.0.1:8084/
 
 The connection with the server is closed after 20mns without
-traffic. In this case, a button appears to let user reconnect and
-resume monitoring.
+traffic. In this case, a message and a link appear to let user
+reconnect and resume monitoring.
 
 Only package that are added or removed from the system are
 listed. Upgraded packages are not.

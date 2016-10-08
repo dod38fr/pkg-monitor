@@ -6,13 +6,16 @@ $(document).ready(function() {
     var buffer = [];
     var pkg_list_size = 15;
 
+    $("#disconnected").hide();
+    $("#connected").hide();
+    $("#connecting").show();
+
     var connect = function () {
         var socket ;
-        var ws_url = document.baseURI.replace(/^http/,"ws") + 'pkg';
+        var ws_url = document.baseURI.replace(/^http/,"ws").replace(/#/,'') + 'pkg';
         console.debug("opening websocket to "+ ws_url);
 
         socket = new WebSocket(ws_url);
-        $("#reconnect").hide();
 
         socket.onmessage =  function(event) {
             var data = event.data;
@@ -29,17 +32,19 @@ $(document).ready(function() {
         };
 
         socket.onclose = function(event) {
-            $('#status').html('Socket closed');
-            $("#reconnect").show();
+            $("#disconnected").show();
+            $("#connected").hide();
         };
 
         socket.onopen = function() {
             console.debug("connected");
-            $('#status').html('Connected');
+            $("#disconnected").hide();
+            $("#connected").show();
+            $("#connecting").hide();
         };
     };
 
-    $("#reconnect").click(connect);
+    $("#reconnect").click(function(){ connect(); return false; });
     connect();
 
 });

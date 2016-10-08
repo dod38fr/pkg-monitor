@@ -12,10 +12,16 @@
 <div class="container" role="main">
   <div class="row">
       <h2 class="sub-header">Status</h2>
-      <div>
-        <span id="status"></span> <button id="reconnect">connect</button>
+      <div id="connecting">
+        Connecting...
       </div>
-      <h2 class="page-header">Packages events</h2>
+      <div id="connected">
+        Connected.
+      </div>
+      <div id="disconnected">
+        Connection to server lost, please click <a href="#" id="reconnect">here</a> to reconnect.
+      </div>
+      <h2 class="sub-header">Packages events</h2>
       <div id="scrollDiv" class="scrollArea" data-spy="scroll" data-target="#sectionTitle">
         <!-- Scroll content goes here -->
       </div>
