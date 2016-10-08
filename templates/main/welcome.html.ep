@@ -9,8 +9,9 @@
 </nav>
 
 
-<div class="container" role="main">
+<div class="container-fluid" role="main">
   <div class="row">
+    <div class="col-md-5 col-md-offset-2">
       <h2 class="sub-header">Status</h2>
       <div id="connecting">
         Connecting...
@@ -25,6 +26,7 @@
       <div id="scrollDiv" class="scrollArea" data-spy="scroll" data-target="#sectionTitle">
         <!-- Scroll content goes here -->
       </div>
+    </div>
   </div>
 </div>
 
