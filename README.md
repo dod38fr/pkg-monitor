@@ -1,11 +1,33 @@
-# Purpose
 
 # Installation
 
+Make sure that vagrant and virtualbox are installed on your system.
+
+Download vagrant file:
+```
+wget https://raw.githubusercontent.com/dod38fr/pkg-monitor/master/Vagrantfile
+```
+
+Setup vagrant system:
+```
+vagrant up
+```
 
 # Usage
 
 Once the vagrant image is installed and running, open the page http://127.0.0.1:8084/
+
+Login to the virtual machine:
+```
+vagrant ssh
+```
+
+Then install or remove packages. For instance:
+```
+sudo apt install libcpanplus-perl
+sudo apt install libconfig-model-perl
+sudo apt remove libcpanplus-perl
+```
 
 The connection with the server is closed after 20mns without
 traffic. In this case, a message and a link appear to let user
