@@ -75,15 +75,9 @@ Vagrant.configure("2") do |config|
      echo "Package: *\nPin: release a=stable\nPin-Priority: 900" > /etc/apt/preferences.d/pkgmonit
      echo "\nPackage: *\nPin: release a=unstable\nPin-Priority: 800" >> /etc/apt/preferences.d/pkgmonit
 
-     if [ $(ip addr show |grep -c 192.168.0) -gt 0 ]
-     then
-         echo "apt proxy setup for my home"
-         echo 'Acquire::http { Proxy "http://192.168.0.14:3142"; };' > /etc/apt/apt.conf
-     fi
-
      apt-get update
      echo "installing required packages"
-     apt-get install -y rsync git zile libmojolicious-perl/unstable libio-async-perl/unstable libio-async-loop-mojo-perl/unstable
+     apt-get install -y git zile libmojolicious-perl/unstable libio-async-perl/unstable libio-async-loop-mojo-perl/unstable
 
      export HOME=/home/vagrant/
      export PKGMONIT=$HOME/pkg-monit
@@ -99,9 +93,6 @@ Vagrant.configure("2") do |config|
          git clone $REPO pkg-monit
      fi
          
-     #mkdir -p $PKGMONIT
-     #rsync -av /vagrant_data/ $PKGMONIT/
-
      echo "setting up systemd for webserver"
      cp $PKGMONIT/systemd/*.service /etc/systemd/system/
      systemctl daemon-reload
