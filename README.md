@@ -6,6 +6,8 @@ Make sure that vagrant and virtualbox are installed on your system.
 Download vagrant file:
 ```
 wget https://raw.githubusercontent.com/dod38fr/pkg-monitor/master/Vagrantfile
+# or
+curl -O https://raw.githubusercontent.com/dod38fr/pkg-monitor/master/Vagrantfile
 ```
 
 Setup vagrant system:
